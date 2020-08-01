@@ -1,0 +1,29 @@
+name: MasterDeployCI
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      env:
+        REACT_APP_TOKEN: secrets.TOKEN
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Packages
+        run: npm install
+      - name: Deploy to GH Pages
+        run: |
+          git config --global user.email "martin.palmieri@globallogic.com"
+          git config --global user.name "mpalmierigl"
+          git remote set-url origin https://${{ secrets.TOKEN }}@github.com/mpalmierigl/test.git
+          npm run deploy
+      - name: Updating Domain
+        run: echo "Update domain"
